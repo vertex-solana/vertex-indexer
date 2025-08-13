@@ -116,6 +116,11 @@ export class ExecuteQueryDto {
   @IsNotEmpty()
   @Transform(({ value }) => value.trim())
   query: string;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  indexerId: number;
 }
 
 export class UpdateTransformerDto {

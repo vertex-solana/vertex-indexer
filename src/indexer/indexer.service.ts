@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import {
   BadRequestException,
   HttpException,
@@ -17,7 +18,7 @@ import {
   QueryLogEntity,
   TransformerPdaEntity,
 } from 'src/database/entities';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import {
   CreateIndexerSpaceDto,
   CreateQueryLogDto,
@@ -27,13 +28,18 @@ import {
   UpdateTransformerDto,
 } from './dtos/request.dto';
 import { Transactional } from 'typeorm-transactional';
-import { createSlug } from 'src/common/utils';
+import { createSlug, encrypt } from 'src/common/utils';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { IndexerEventName } from 'src/common/enum/event.enum';
 import { buildOrderBy } from 'src/common/utils/query.util';
 import { isEmpty } from 'lodash';
 import { SortDirection } from 'src/common/enum/common.enum';
 import { IndexerCreateEvent } from 'src/websocket-listener/interfaces/event-module.interface';
+import {
+  getIndexerRole,
+  IndexerSchemaCredentialEntity,
+} from 'src/database/entities/indexer-schema-credential.entity';
+import { CREDENTIAL_SECRET_KEY } from 'src/app.environment';
 
 @Injectable()
 export class IndexerService {
@@ -51,11 +57,15 @@ export class IndexerService {
     private readonly indexerTriggerRepository: Repository<IndexerTriggerEntity>,
     @InjectRepository(QueryLogEntity)
     private readonly queryLogRepository: Repository<QueryLogEntity>,
+    @InjectRepository(IndexerSchemaCredentialEntity)
+    private readonly indexerSchemaCredentialRepository: Repository<IndexerSchemaCredentialEntity>,
+    private readonly dataSource: DataSource,
     private readonly logger: PinoLogger,
   ) {
     this.logger.setContext(IndexerService.name);
   }
 
+  @Transactional()
   async createIndexerSpace(
     input: CreateIndexerSpaceDto,
     account: AccountEntity,
@@ -74,7 +84,7 @@ export class IndexerService {
     if (exitIndexerName) {
       throw new BadRequestException('Indexer name already exists');
     }
-    await this.indexerRepository.save({
+    const indexer = await this.indexerRepository.save({
       name,
       programId,
       idlId: idl?.id,
@@ -82,6 +92,56 @@ export class IndexerService {
       slug,
       cluster,
       description,
+    });
+
+    const indexerSchemaPath = `indexer_${indexer.id}`;
+    const indexerRoleOwner = getIndexerRole(indexer.id, 'owner');
+    const indexerRoleReader = getIndexerRole(indexer.id, 'reader');
+
+    // 1. Create schema
+    await this.dataSource.query(
+      `CREATE SCHEMA IF NOT EXISTS ${indexerSchemaPath};`,
+    );
+
+    // 2. Update indexer record
+    await this.indexerRepository.update(
+      { id: indexer.id },
+      { schemaPath: indexerSchemaPath },
+    );
+
+    // 3. Generate password for owner
+    const ownerPassword = crypto.randomBytes(12).toString('base64');
+
+    // 4. Create roles
+    await this.dataSource.query(`
+      CREATE ROLE ${indexerRoleOwner} LOGIN PASSWORD '${ownerPassword}';
+      CREATE ROLE ${indexerRoleReader} NOLOGIN;
+    `);
+
+    // 5. Grant permissions
+    await this.dataSource.query(`
+      -- Owner role gets full access
+      GRANT USAGE ON SCHEMA ${indexerSchemaPath} TO ${indexerRoleOwner};
+      GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA ${indexerSchemaPath} TO ${indexerRoleOwner};
+      ALTER DEFAULT PRIVILEGES IN SCHEMA ${indexerSchemaPath}
+        GRANT ALL PRIVILEGES ON TABLES TO ${indexerRoleOwner};
+
+      -- Reader role gets read-only access
+      GRANT USAGE ON SCHEMA ${indexerSchemaPath} TO ${indexerRoleReader};
+      GRANT SELECT ON ALL TABLES IN SCHEMA ${indexerSchemaPath} TO ${indexerRoleReader};
+      ALTER DEFAULT PRIVILEGES IN SCHEMA ${indexerSchemaPath}
+        GRANT SELECT ON TABLES TO ${indexerRoleReader};
+
+      -- Restrict from public schema
+      REVOKE ALL ON SCHEMA public FROM ${indexerRoleOwner};
+      REVOKE ALL ON SCHEMA public FROM ${indexerRoleReader};
+    `);
+
+    // 6. Store credential
+    await this.indexerSchemaCredentialRepository.save({
+      userName: indexerRoleOwner,
+      passwordEncrypted: encrypt(ownerPassword, CREDENTIAL_SECRET_KEY),
+      indexerId: indexer.id,
     });
   }
 
