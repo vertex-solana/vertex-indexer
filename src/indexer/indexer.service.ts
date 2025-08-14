@@ -259,7 +259,7 @@ export class IndexerService {
 
     const newTableMetadata = this.tableMetadataRepository.create({
       tableName,
-      fullTableName: `${account.userName}_${indexer.id}_${tableName}`,
+      fullTableName: `${indexer.schemaPath}.${tableName}`,
       schema: tableSchema,
       indexerId,
       indexer,
