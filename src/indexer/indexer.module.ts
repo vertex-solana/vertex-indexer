@@ -15,6 +15,7 @@ import { IndexerTableService } from './indexer-table.service';
 import { RpcModule } from 'src/rpc/rpc.module';
 import { AccountModule } from 'src/account/account.module';
 import { ExecuteTransformerProcessor } from './processor/execute-transformer.processor';
+import { IndexerConnectionManagerService } from './indexer-connection-manager.service';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ExecuteTransformerProcessor } from './processor/execute-transformer.pro
     PdaProcessor,
     IndexerProcessor,
     ExecuteTransformerProcessor,
+    IndexerConnectionManagerService,
   ],
 })
 export class IndexerModule {}

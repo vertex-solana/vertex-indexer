@@ -125,6 +125,9 @@ export class IndexerResponse {
   cluster: string;
 
   @ApiProperty()
+  schemaPath: string;
+
+  @ApiProperty()
   ownerAccountId: number;
 
   @ApiProperty({ type: AccountResponse })
@@ -138,6 +141,7 @@ export class IndexerResponse {
     this.programId = indexer.programId;
     this.idlId = indexer.idlId;
     this.cluster = indexer.cluster;
+    this.schemaPath = indexer.schemaPath;
     this.ownerAccountId = indexer.accountId;
     this.owner = new AccountResponse(indexer.account);
   }

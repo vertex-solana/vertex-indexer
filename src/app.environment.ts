@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env' });
 
 // Environment
-export const NODE_ENV: string = process.env.NODE_ENV || 'edas';
+export const NODE_ENV: string = process.env.NODE_ENV || 'development';
 
 // Server config
 export const PORT: number = parseInt(process.env.PORT, 10) || 3000;
@@ -68,3 +68,9 @@ export const GOOGLE_CLIENT_SECRET =
 export const GOOGLE_CALLBACK_URL =
   process.env.GOOGLE_CALLBACK_URL || 'google-callback-url';
 export const FE_REDIRECT_URL = process.env.FE_REDIRECT_URL || 'fe-redirect-url';
+
+// Indexer connection
+export const INDEXER_CONNECTION_TTL =
+  parseInt(process.env.INDEXER_CONNECTION_TTL, 10) || 5 * 60 * 1000; // 5 minutes
+export const CREDENTIAL_SECRET_KEY =
+  process.env.CREDENTIAL_SECRET_KEY || 'credential-secret';

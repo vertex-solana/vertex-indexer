@@ -187,7 +187,7 @@ export class IndexerController {
     @Body() input: ExecuteQueryDto,
     @Req() req: RequestWithUser,
   ): Promise<ResultExecuteQueryResponse> {
-    return await this.indexerTableService.executeQuery(input.query);
+    return await this.indexerTableService.executeQuery(input);
   }
 
   @ApiOperation({
