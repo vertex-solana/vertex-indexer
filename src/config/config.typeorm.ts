@@ -89,9 +89,9 @@ export const dataSourceOptions: TypeOrmModuleOptions = {
   logging: (process.env.TYPEORM_LOGGING?.split(',') as any[]) ?? false,
   entities: [`${__dirname}/../../dist/database/entities/*.entity.{ts,js}`],
   migrations: [`${__dirname}/../../dist/database/migrations/*.{ts,js}`],
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  // ssl: {
+  //   rejectUnauthorized: false,
+  // },
 };
 
 export const dbOrmModuleAsync = TypeOrmModule.forRootAsync({

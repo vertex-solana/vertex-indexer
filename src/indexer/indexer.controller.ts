@@ -37,7 +37,6 @@ import {
   TransformerResponse,
 } from './dtos/response.dto';
 import { IndexerTableService } from './indexer-table.service';
-import { IndexerGuard } from 'src/common/guards/indexer.guard';
 import {
   ApiPaginatedResponse,
   PagingResponse,
@@ -46,7 +45,7 @@ import {
 @ApiTags('Indexer')
 @ApiBearerAuth()
 @Controller('indexers')
-@UseGuards(AccessTokenGuard, IndexerGuard)
+@UseGuards(AccessTokenGuard)
 export class IndexerController {
   constructor(
     private readonly indexerService: IndexerService,
