@@ -23,7 +23,6 @@ export class AccountService {
       this.accountRepository.create({
         email: email,
         walletAddress: '',
-        isUpdatedUserName: false,
       }),
     );
     return newAccount;
@@ -57,7 +56,6 @@ export class AccountService {
       this.accountRepository.create({
         walletAddress: walletAddress,
         email: null,
-        isUpdatedUserName: false,
       }),
     );
 
