@@ -9,9 +9,6 @@ export class AccountResponse {
   email: string;
 
   @ApiProperty()
-  userName: string;
-
-  @ApiProperty()
   walletAddress: string;
 
   @ApiProperty()
@@ -23,7 +20,6 @@ export class AccountResponse {
   constructor(account: AccountEntity) {
     this.id = account.id;
     this.email = account.email;
-    this.userName = account.userName;
     this.walletAddress = account.walletAddress;
     this.isUpdatedUserName = account.isUpdatedUserName;
     this.createdAt = account.createdAt;

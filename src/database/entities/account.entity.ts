@@ -16,15 +16,6 @@ export class AccountEntity extends AbstractEntity {
   email: string;
 
   @Column({
-    name: 'user_name',
-    type: 'varchar',
-    length: 50,
-    nullable: true,
-    unique: true,
-  })
-  userName: string;
-
-  @Column({
     name: 'is_updated_user_name',
     type: 'boolean',
     default: false,
