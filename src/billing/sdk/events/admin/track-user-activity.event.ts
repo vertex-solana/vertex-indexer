@@ -1,9 +1,8 @@
-import { PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 
 export interface TrackUserActivityEvent {
   bytes: BN;
   indexerId: BN | null;
-  user: PublicKey;
-  userVault: PublicKey;
+  user: string;
+  userVault: string;
 }

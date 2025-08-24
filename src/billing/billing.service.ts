@@ -6,7 +6,7 @@ import {
   VertexTransactionType,
 } from 'src/common/enum/common.enum';
 import { VertexTransactionEntity } from 'src/database/entities';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 
 @Injectable()
 export class BillingService {
@@ -19,7 +19,9 @@ export class BillingService {
     transactionHash: string,
     transactionType?: VertexTransactionType,
   ): Promise<boolean> {
-    const where = !isNil(transactionType)
+    const where: FindOptionsWhere<VertexTransactionEntity> = !isNil(
+      transactionType,
+    )
       ? { transactionHash, transactionType }
       : { transactionHash };
 
@@ -38,14 +40,14 @@ export class BillingService {
     bytes?: number;
     indexerId?: number;
   }): Promise<void> {
-    const amount = isNil(payload.amount) ? null : payload.amount;
-    const bytes = isNil(payload.bytes) ? null : payload.bytes;
-    const indexerId = isNil(payload.indexerId) ? null : payload.indexerId;
+    const amount = payload.amount ?? null;
+    const bytes = payload.bytes ?? null;
+    const indexerId = payload.indexerId ?? null;
 
     await this.vertexTransactionRepository.save({
       accountId: payload.accountId,
       executionLayer: payload.executionLayer,
-      timestamp: payload.timestamp,
+      timestamp: new Date(payload.timestamp),
       transactionHash: payload.signature,
       transactionType: payload.transactionType,
       amount,

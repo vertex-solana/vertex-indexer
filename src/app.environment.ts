@@ -51,7 +51,7 @@ export const BALANCE_UPDATE_DELAY = 500;
 export const ACCOUNT_LEVEL_UPDATE_DELAY = 500;
 export const SYNC_TRANSACTION_QUEUE_JOB_OPTIONS = {
   attempts: 3,
-  delays: 1000,
+  delay: 1000,
 };
 
 // PDA Change
@@ -88,4 +88,4 @@ export const MAGIC_BLOCK_ER_RPC_WS =
 
 // Vertex Billing
 export const OPERATOR_BILLING_SECRET_KEY =
-  process.env.OPERATOR_BILLING_SECRET_KEY || 'operator-billing-secret';
+  process.env.OPERATOR_BILLING_SECRET_KEY;

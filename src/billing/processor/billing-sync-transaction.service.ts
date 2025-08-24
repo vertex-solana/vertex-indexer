@@ -12,7 +12,7 @@ import { isNil } from 'lodash';
 import { EventParser } from 'anchor-v31';
 import { getProgram } from '../sdk';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { IEventJob } from 'src/common/types/basa-event-job.type';
+import { IEventJob } from 'src/common/types/base-event-job.type';
 
 @Injectable()
 export class BillingSyncTransactionService {
@@ -63,7 +63,7 @@ export class BillingSyncTransactionService {
     const connection = this.getConnectionBaseOnExecutionLayer(executionLayer);
 
     const parsedTx = await retryAsync(
-      () => getParsedTransaction(signature, this.connection),
+      () => getParsedTransaction(signature, connection),
       TIME_WAIT_RETRY_PARSE_TX,
       DEFAULT_RETRIES,
     );

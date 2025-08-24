@@ -10,10 +10,14 @@ export const formatEvent = (event: Event<IdlEvent, Record<string, never>>) => {
   const formattedEvent = event.data;
   for (const [key, value] of Object.entries(event.data)) {
     if (value instanceof PublicKey) {
-      formattedEvent[key] = value.toString();
+      formattedEvent[key] = value.toBase58();
     }
     if (value instanceof BN) {
-      formattedEvent[key] = Number(value.toString());
+      if (value.bitLength() < 53) {
+        formattedEvent[key] = Number(value.toString());
+      } else {
+        formattedEvent[key] = value.toString();
+      }
     }
   }
 

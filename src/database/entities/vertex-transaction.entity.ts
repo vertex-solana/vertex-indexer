@@ -61,6 +61,7 @@ export class VertexTransactionEntity extends AbstractEntity {
     length: 255,
     nullable: false,
   })
+  @Index()
   transactionHash: string;
 
   @Column({

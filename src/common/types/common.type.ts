@@ -5,7 +5,7 @@ export type ObjectType = {
   [key: string]: any;
 };
 
-export class ProgramEvent {
+export interface ProgramEvent {
   data: Event<IdlEvent, Record<string, never>>;
   timestamp: Date;
   name: string;

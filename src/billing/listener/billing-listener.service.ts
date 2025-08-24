@@ -91,8 +91,10 @@ export class BillingListenerService implements OnModuleInit {
 
     // Keep the connection alive
     const keepAliveHandler = () => {
-      this.rpcSocket.send('ping');
-      this.rpcSocketER.send('ping');
+      if (this.rpcSocket.readyState === this.rpcSocket.OPEN)
+        this.rpcSocket.send('ping');
+      if (this.rpcSocketER.readyState === this.rpcSocketER.OPEN)
+        this.rpcSocketER.send('ping');
     };
 
     this.interval = setInterval(
@@ -121,7 +123,7 @@ export class BillingListenerService implements OnModuleInit {
 
   private async processAccountNotification(
     notification: Result,
-    interval: NodeJS.Timeout,
+    interval: NodeJS.Timeout | null,
     executionLayer: ExecutionLayer,
   ) {
     const signature = notification?.value?.signature;
@@ -148,6 +150,6 @@ export class BillingListenerService implements OnModuleInit {
     this.logger.debug(
       `Added job sync transaction billing program, jobId:${jobId}`,
     );
-    interval ?? clearInterval(interval!);
+    if (interval) clearInterval(interval);
   }
 }

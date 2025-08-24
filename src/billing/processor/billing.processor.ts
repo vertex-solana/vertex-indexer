@@ -516,14 +516,14 @@ export class BillingProcessor extends AbstractJobProcessor {
       DEFAULT_RETRIES,
     );
 
-    const { transaction } = await this.connection.getTransaction(commitSig, {
+    await this.connection.getTransaction(commitSig, {
       commitment: 'finalized',
     });
 
     await this.billingService.saveTransaction({
       accountId: account.id,
       executionLayer: ExecutionLayer.BASE_CHAIN,
-      signature: transaction[0],
+      signature: commitSig,
       timestamp,
       transactionType: VertexTransactionType.UNDELEGATED_AND_COMMIT_USER_VAULT,
     });
@@ -641,7 +641,7 @@ export class BillingProcessor extends AbstractJobProcessor {
 
     const isSyncedTransaction = await this.billingService.isSyncedTransaction(
       signature,
-      VertexTransactionType.START_BILLING,
+      VertexTransactionType.CHARGED_FEE,
     );
     if (isSyncedTransaction) {
       this.logger.error(signature, 'This vertex transaction already existed');

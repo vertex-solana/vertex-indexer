@@ -1,9 +1,8 @@
-import { PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 
 export interface WithdrawIndexerFeeEvent {
   amount: BN;
-  indexer: PublicKey;
+  indexer: string;
   indexerId: BN;
-  indexerOwner: PublicKey;
+  indexerOwner: string;
 }

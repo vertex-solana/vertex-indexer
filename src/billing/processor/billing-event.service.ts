@@ -6,7 +6,7 @@ import {
   VertexBillingQueueJob,
 } from 'src/common/queue';
 import { Queue } from 'bull';
-import { IEventJob } from 'src/common/types/basa-event-job.type';
+import { IEventJob } from 'src/common/types/base-event-job.type';
 import {
   ChargeFeeEvent,
   DepositToVaultEvent,
