@@ -7,6 +7,7 @@ import { BillingProcessor } from './processor/billing.processor';
 import { BullModule } from '@nestjs/bull';
 import { BillingSystemQueueConfig } from 'src/common/queue';
 import { BillingSyncTransactionService } from './processor/billing-sync-transaction.service';
+import { BillingEventService } from './processor/billing-event.service';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { BillingSyncTransactionService } from './processor/billing-sync-transact
     // Processor
     BillingProcessor,
     BillingSyncTransactionService,
+    BillingEventService,
   ],
   exports: [BillingService],
 })
