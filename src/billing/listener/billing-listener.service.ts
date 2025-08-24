@@ -44,24 +44,26 @@ export class BillingListenerService implements OnModuleInit {
     this.logger.info(
       `
       Start init listen log event Vertex Billing at ${new Date()}
-      - RPC Base chain: ${RPC_URL}
-      - RPC ER: ${MAGIC_BLOCK_ER_RPC_URL}
+      - RPC Base chain : ${RPC_URL}
+      - RPC ER         : ${MAGIC_BLOCK_ER_RPC_URL}
       `,
     );
 
     const logger = this.logger;
+    const rpcSocket = this.rpcSocket;
+    const rpcSocketER = this.rpcSocketER;
     const subscribe = this.subscribeLogsSubscribe.bind(this);
     const process = this.processAccountNotification.bind(this);
 
-    this.rpcSocket.onopen = function (greeting) {
+    this.rpcSocket.onopen = async function (greeting) {
       logger.info({ greeting }, 'Connect to RPC Base Chain');
-      subscribe();
+      await subscribe(rpcSocket);
     };
 
-    // this.rpcSocketER.onopen = function (greeting) {
-    //   logger.info({ greeting }, 'Connect to RPC ER');
-    //   subscribe();
-    // };
+    this.rpcSocketER.onopen = async function (greeting) {
+      logger.info({ greeting }, 'Connect to RPC ER');
+      await subscribe(rpcSocketER);
+    };
 
     this.rpcSocket.onmessage = (event) => {
       const eventData = JSON.parse(
@@ -75,17 +77,17 @@ export class BillingListenerService implements OnModuleInit {
       process(eventData, this.interval, ExecutionLayer.BASE_CHAIN);
     };
 
-    // this.rpcSocketER.onmessage = (event) => {
-    //   const eventData = JSON.parse(
-    //     event.data as any,
-    //   ) as LogsNotificationRPCResponse;
+    this.rpcSocketER.onmessage = (event) => {
+      const eventData = JSON.parse(
+        event.data as any,
+      ) as LogsNotificationRPCResponse;
 
-    //   if (eventData.method !== 'logsNotification') {
-    //     return;
-    //   }
+      if (eventData.method !== 'logsNotification') {
+        return;
+      }
 
-    //   process(eventData, this.interval, ExecutionLayer.EPHEMERAL_ROLLUP);
-    // };
+      process(eventData, this.interval, ExecutionLayer.EPHEMERAL_ROLLUP);
+    };
 
     // Keep the connection alive
     const keepAliveHandler = () => {
@@ -99,24 +101,8 @@ export class BillingListenerService implements OnModuleInit {
     );
   }
 
-  private async subscribeLogsSubscribe() {
-    this.rpcSocket.send(
-      JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'logsSubscribe',
-        params: [
-          {
-            mentions: [this.program.programId.toBase58()],
-          },
-          {
-            commitment: 'finalized',
-          },
-        ],
-      }),
-    );
-
-    this.rpcSocketER.send(
+  private async subscribeLogsSubscribe(rpcSocket: WebSocket) {
+    rpcSocket.send(
       JSON.stringify({
         jsonrpc: '2.0',
         id: 1,
