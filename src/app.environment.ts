@@ -49,6 +49,10 @@ export const SYNC_TRANSACTION_JOB_BACKOFF =
   parseInt(process.env.SYNC_TRANSACTION_JOB_BACKOFF, 10) || 10000;
 export const BALANCE_UPDATE_DELAY = 500;
 export const ACCOUNT_LEVEL_UPDATE_DELAY = 500;
+export const SYNC_TRANSACTION_QUEUE_JOB_OPTIONS = {
+  attempts: 3,
+  delays: 1000,
+};
 
 // PDA Change
 export const GET_INDEXER_PAGING =
@@ -74,3 +78,14 @@ export const INDEXER_CONNECTION_TTL =
   parseInt(process.env.INDEXER_CONNECTION_TTL, 10) || 5 * 60 * 1000; // 5 minutes
 export const CREDENTIAL_SECRET_KEY =
   process.env.CREDENTIAL_SECRET_KEY || 'credential-secret';
+
+// RPC
+export const RPC_URL = process.env.RPC_URL || 'https://api.devnet.solana.com';
+export const MAGIC_BLOCK_ER_RPC_URL =
+  process.env.MAGIC_BLOCK_ER_RPC_URL || 'https://devnet.magicblock.app/';
+export const MAGIC_BLOCK_ER_RPC_WS =
+  process.env.MAGIC_BLOCK_ER_RPC_WS || 'wss://devnet.magicblock.app/';
+
+// Vertex Billing
+export const OPERATOR_BILLING_SECRET_KEY =
+  process.env.OPERATOR_BILLING_SECRET_KEY || 'operator-billing-secret';

@@ -26,7 +26,7 @@ export interface ISendTransactionWithRetryArgs {
   retries?: number;
   needSimulate?: boolean;
   addressLookupTableAccounts?: Array<AddressLookupTableAccount>;
-  computeUnitLimit?: number;
+  isAddComputeUnitIx?: boolean;
 }
 
 export interface ITransactionConfirmationResponse {

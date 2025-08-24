@@ -20,6 +20,7 @@ import { IdlDappModule } from './idl-dapp/idl-dapp.module';
 import { AuthModule } from './auth/auth.module';
 import { AccountModule } from './account/account.module';
 import { RpcModule } from './rpc/rpc.module';
+import { BillingModule } from './billing/billing.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { RpcModule } from './rpc/rpc.module';
     AuthModule,
     AccountModule,
     RpcModule,
+    BillingModule,
   ],
   providers: [],
 })
