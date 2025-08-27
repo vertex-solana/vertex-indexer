@@ -25,7 +25,7 @@ export class BillingSyncTransactionService {
     private readonly logger: PinoLogger,
   ) {
     this.connection = new Connection(RPC_URL);
-    this.connection = new Connection(MAGIC_BLOCK_ER_RPC_URL);
+    this.connectionER = new Connection(MAGIC_BLOCK_ER_RPC_URL);
 
     const program = getProgram(this.connection);
     this.eventParser = new EventParser(program.programId, program.coder);
@@ -40,7 +40,10 @@ export class BillingSyncTransactionService {
       const events = await this.getTransactionEvents(signature, executionLayer);
 
       for (const event of events) {
-        this.logger.debug({ event }, 'Vertex Billing Event data');
+        this.logger.debug(
+          { event },
+          `Vertex Billing Event data in ${executionLayer}`,
+        );
         const data: IEventJob<any> = {
           name: event.name,
           signatures: [signature],

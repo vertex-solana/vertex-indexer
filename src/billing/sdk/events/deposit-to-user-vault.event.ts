@@ -1,7 +1,5 @@
-import BN from 'bn.js';
-
 export interface DepositToVaultEvent {
-  amount: BN;
+  amount: string;
   user: string;
   userVault: string;
 }

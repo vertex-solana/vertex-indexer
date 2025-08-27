@@ -65,7 +65,7 @@ export class BillingListenerService implements OnModuleInit {
       await subscribe(rpcSocketER);
     };
 
-    this.rpcSocket.onmessage = (event) => {
+    this.rpcSocket.onmessage = async (event) => {
       const eventData = JSON.parse(
         event.data as any,
       ) as LogsNotificationRPCResponse;
@@ -74,10 +74,14 @@ export class BillingListenerService implements OnModuleInit {
         return;
       }
 
-      process(eventData, this.interval, ExecutionLayer.BASE_CHAIN);
+      await process(
+        eventData.params.result,
+        this.interval,
+        ExecutionLayer.BASE_CHAIN,
+      );
     };
 
-    this.rpcSocketER.onmessage = (event) => {
+    this.rpcSocketER.onmessage = async (event) => {
       const eventData = JSON.parse(
         event.data as any,
       ) as LogsNotificationRPCResponse;
@@ -86,7 +90,11 @@ export class BillingListenerService implements OnModuleInit {
         return;
       }
 
-      process(eventData, this.interval, ExecutionLayer.EPHEMERAL_ROLLUP);
+      await process(
+        eventData.params.result,
+        this.interval,
+        ExecutionLayer.EPHEMERAL_ROLLUP,
+      );
     };
 
     // Keep the connection alive
@@ -103,7 +111,7 @@ export class BillingListenerService implements OnModuleInit {
     );
   }
 
-  private async subscribeLogsSubscribe(rpcSocket: WebSocket) {
+  private subscribeLogsSubscribe(rpcSocket: WebSocket) {
     rpcSocket.send(
       JSON.stringify({
         jsonrpc: '2.0',

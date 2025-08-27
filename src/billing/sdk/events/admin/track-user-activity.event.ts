@@ -1,8 +1,6 @@
-import BN from 'bn.js';
-
 export interface TrackUserActivityEvent {
-  bytes: BN;
-  indexerId: BN | null;
+  bytes: string;
+  indexerId: string | null;
   user: string;
   userVault: string;
 }

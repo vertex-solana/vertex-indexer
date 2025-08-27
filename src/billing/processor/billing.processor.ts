@@ -107,7 +107,9 @@ export class BillingProcessor extends AbstractJobProcessor {
     const isSyncedTransaction =
       await this.billingService.isSyncedTransaction(signature);
     if (isSyncedTransaction) {
-      this.logger.error(signature, 'This vertex transaction already existed');
+      this.logger.info(
+        `This vertex transaction already existed, signature: ${signature}`,
+      );
       return 'SYNCED';
     }
 
@@ -123,12 +125,16 @@ export class BillingProcessor extends AbstractJobProcessor {
       user: owner,
       accountId: account.id,
     };
+    const jobId = `${VertexBillingQueueJob.START_DELEGATE_USER_VAULT}:user<${owner}>`;
     await this.billingSystemQueue.add(
       VertexBillingQueueJob.START_DELEGATE_USER_VAULT,
       jobData,
       {
-        jobId: `${VertexBillingQueueJob.START_DELEGATE_USER_VAULT}:user<${userVault}>`,
+        jobId,
       },
+    );
+    this.logger.debug(
+      `Added job START_DELEGATE_USER_VAULT for user <${owner}>, jobId:${jobId}`,
     );
 
     await this.billingService.saveTransaction({
@@ -191,7 +197,9 @@ export class BillingProcessor extends AbstractJobProcessor {
     const isSyncedTransaction =
       await this.billingService.isSyncedTransaction(signature);
     if (isSyncedTransaction) {
-      this.logger.error(signature, 'This vertex transaction already existed');
+      this.logger.info(
+        `This vertex transaction already existed, signature: ${signature}`,
+      );
       return 'SYNCED';
     }
 
@@ -204,13 +212,11 @@ export class BillingProcessor extends AbstractJobProcessor {
     }
 
     const indexer = await this.indexerRepository.findOneBy({
-      id: indexerId.toNumber(),
+      id: Number(indexerId),
       accountId: account.id,
     });
     if (isNil(indexer)) {
-      this.logger.error(
-        `Indexer ${indexerId.toNumber()} not found in Indexer table`,
-      );
+      this.logger.error(`Indexer ${indexerId} not found in Indexer table`);
       return 'ERROR_NOT_FOUND_INDEXER';
     }
 
@@ -233,7 +239,9 @@ export class BillingProcessor extends AbstractJobProcessor {
     const isSyncedTransaction =
       await this.billingService.isSyncedTransaction(signature);
     if (isSyncedTransaction) {
-      this.logger.error(signature, 'This vertex transaction already existed');
+      this.logger.info(
+        `This vertex transaction already existed, signature: ${signature}`,
+      );
       return 'SYNCED';
     }
 
@@ -251,7 +259,7 @@ export class BillingProcessor extends AbstractJobProcessor {
       signature,
       timestamp,
       transactionType: VertexTransactionType.DEPOSIT_TO_VAULT,
-      amount: amount.toNumber(),
+      amount: Number(amount),
     });
 
     return 'FINISHED';
@@ -266,7 +274,9 @@ export class BillingProcessor extends AbstractJobProcessor {
     const isSyncedTransaction =
       await this.billingService.isSyncedTransaction(signature);
     if (isSyncedTransaction) {
-      this.logger.error(signature, 'This vertex transaction already existed');
+      this.logger.info(
+        `This vertex transaction already existed, signature: ${signature}`,
+      );
       return 'SYNCED';
     }
 
@@ -281,13 +291,11 @@ export class BillingProcessor extends AbstractJobProcessor {
     }
 
     const indexer = await this.indexerRepository.findOneBy({
-      id: indexerId.toNumber(),
+      id: Number(indexerId),
       accountId: account.id,
     });
     if (isNil(indexer)) {
-      this.logger.error(
-        `Indexer ${indexerId.toNumber()} not found in Indexer table`,
-      );
+      this.logger.error(`Indexer ${indexerId} not found in Indexer table`);
       return 'ERROR_NOT_FOUND_INDEXER';
     }
 
@@ -298,7 +306,7 @@ export class BillingProcessor extends AbstractJobProcessor {
       timestamp,
       transactionType: VertexTransactionType.WITHDRAW_INDEXER_FEE,
       indexerId: indexer.id,
-      amount: amount.toNumber(),
+      amount: Number(amount),
     });
 
     return 'FINISHED';
@@ -405,7 +413,9 @@ export class BillingProcessor extends AbstractJobProcessor {
       VertexTransactionType.TRACK_USER_ACTIVITY,
     );
     if (isSyncedTransaction) {
-      this.logger.error(signature, 'This vertex transaction already existed');
+      this.logger.info(
+        `This vertex transaction already existed, signature: ${signature}`,
+      );
       return 'SYNCED';
     }
 
@@ -419,13 +429,11 @@ export class BillingProcessor extends AbstractJobProcessor {
 
     if (indexerId) {
       const indexer = await this.indexerRepository.findOneBy({
-        id: indexerId.toNumber(),
+        id: Number(indexerId),
         accountId: account.id,
       });
       if (isNil(indexer)) {
-        this.logger.error(
-          `Indexer ${indexerId.toNumber()} not found in Indexer table`,
-        );
+        this.logger.error(`Indexer ${indexerId} not found in Indexer table`);
         return 'ERROR_NOT_FOUND_INDEXER';
       }
     }
@@ -436,8 +444,8 @@ export class BillingProcessor extends AbstractJobProcessor {
       signature,
       timestamp,
       transactionType: VertexTransactionType.TRACK_USER_ACTIVITY,
-      indexerId: indexerId ? indexerId.toNumber() : null,
-      bytes: bytes.toNumber(),
+      indexerId: indexerId ? Number(indexerId) : null,
+      bytes: Number(bytes),
     });
 
     return 'FINISHED';
@@ -452,7 +460,9 @@ export class BillingProcessor extends AbstractJobProcessor {
       VertexTransactionType.START_BILLING,
     );
     if (isSyncedTransaction) {
-      this.logger.error(signature, 'This vertex transaction already existed');
+      this.logger.info(
+        `This vertex transaction already existed, signature: ${signature}`,
+      );
       return 'SYNCED';
     }
 
@@ -634,7 +644,9 @@ export class BillingProcessor extends AbstractJobProcessor {
       VertexTransactionType.CHARGED_FEE,
     );
     if (isSyncedTransaction) {
-      this.logger.error(signature, 'This vertex transaction already existed');
+      this.logger.info(
+        `This vertex transaction already existed, signature: ${signature}`,
+      );
       return 'SYNCED';
     }
 
@@ -652,7 +664,7 @@ export class BillingProcessor extends AbstractJobProcessor {
       signature,
       timestamp,
       transactionType: VertexTransactionType.CHARGED_FEE,
-      amount: amount.toNumber(),
+      amount: Number(amount),
     });
 
     const jobData: IStartDelegateUserVaultJob = {

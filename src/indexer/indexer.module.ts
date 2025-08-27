@@ -5,6 +5,7 @@ import { IndexerService } from './indexer.service';
 import { IndexerController } from './indexer.controller';
 import { BullModule } from '@nestjs/bull';
 import {
+  BillingSystemQueueConfig,
   ExecuteTransformerQueueConfig,
   IndexerSystemQueueConfig,
   PdaSystemQueueConfig,
@@ -24,6 +25,7 @@ import { IndexerConnectionManagerService } from './indexer-connection-manager.se
       PdaSystemQueueConfig,
       IndexerSystemQueueConfig,
       ExecuteTransformerQueueConfig,
+      BillingSystemQueueConfig,
     ),
     RpcModule,
     AccountModule,

@@ -13,11 +13,7 @@ export const formatEvent = (event: Event<IdlEvent, Record<string, never>>) => {
       formattedEvent[key] = value.toBase58();
     }
     if (value instanceof BN) {
-      if (value.bitLength() < 53) {
-        formattedEvent[key] = Number(value.toString());
-      } else {
-        formattedEvent[key] = value.toString();
-      }
+      formattedEvent[key] = value.toString();
     }
   }
 

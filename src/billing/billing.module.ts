@@ -8,12 +8,14 @@ import { BullModule } from '@nestjs/bull';
 import { BillingSystemQueueConfig } from 'src/common/queue';
 import { BillingSyncTransactionService } from './processor/billing-sync-transaction.service';
 import { BillingEventService } from './processor/billing-event.service';
+import { BillingController } from './billing.controller';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature(entities),
     BullModule.registerQueue(BillingSystemQueueConfig),
   ],
+  controllers: [BillingController],
   providers: [
     BillingService,
 

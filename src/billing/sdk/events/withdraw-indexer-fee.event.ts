@@ -1,8 +1,6 @@
-import BN from 'bn.js';
-
 export interface WithdrawIndexerFeeEvent {
-  amount: BN;
+  amount: string;
   indexer: string;
-  indexerId: BN;
+  indexerId: string;
   indexerOwner: string;
 }
