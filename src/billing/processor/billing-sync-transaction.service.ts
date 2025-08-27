@@ -40,7 +40,7 @@ export class BillingSyncTransactionService {
       const events = await this.getTransactionEvents(signature, executionLayer);
 
       for (const event of events) {
-        this.logger.debug({ event }, 'Event data');
+        this.logger.debug({ event }, 'Vertex Billing Event data');
         const data: IEventJob<any> = {
           name: event.name,
           signatures: [signature],

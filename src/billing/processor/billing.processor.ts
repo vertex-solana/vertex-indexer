@@ -112,24 +112,22 @@ export class BillingProcessor extends AbstractJobProcessor {
     }
 
     const account = await this.accountRepository.findOneBy({
-      walletAddress: owner.toBase58(),
+      walletAddress: owner,
     });
     if (isNil(account)) {
-      this.logger.error(
-        `Wallet address ${owner.toBase58()} not found in Account table`,
-      );
+      this.logger.error(`Wallet address ${owner} not found in Account table`);
       return 'ERROR_NOT_FOUND_ACCOUNT';
     }
 
     const jobData: IStartDelegateUserVaultJob = {
-      user: owner.toBase58(),
+      user: owner,
       accountId: account.id,
     };
     await this.billingSystemQueue.add(
       VertexBillingQueueJob.START_DELEGATE_USER_VAULT,
       jobData,
       {
-        jobId: `${VertexBillingQueueJob.START_DELEGATE_USER_VAULT}:user<${userVault.toBase58()}>`,
+        jobId: `${VertexBillingQueueJob.START_DELEGATE_USER_VAULT}:user<${userVault}>`,
       },
     );
 
@@ -198,12 +196,10 @@ export class BillingProcessor extends AbstractJobProcessor {
     }
 
     const account = await this.accountRepository.findOneBy({
-      walletAddress: owner.toBase58(),
+      walletAddress: owner,
     });
     if (isNil(account)) {
-      this.logger.error(
-        `Wallet address ${owner.toBase58()} not found in Account table`,
-      );
+      this.logger.error(`Wallet address ${owner} not found in Account table`);
       return 'ERROR_NOT_FOUND_ACCOUNT';
     }
 
@@ -242,12 +238,10 @@ export class BillingProcessor extends AbstractJobProcessor {
     }
 
     const account = await this.accountRepository.findOneBy({
-      walletAddress: user.toBase58(),
+      walletAddress: user,
     });
     if (isNil(account)) {
-      this.logger.error(
-        `Wallet address ${user.toBase58()} not found in Account table`,
-      );
+      this.logger.error(`Wallet address ${user} not found in Account table`);
       return 'ERROR_NOT_FOUND_ACCOUNT';
     }
 
@@ -277,11 +271,11 @@ export class BillingProcessor extends AbstractJobProcessor {
     }
 
     const account = await this.accountRepository.findOneBy({
-      walletAddress: indexerOwner.toBase58(),
+      walletAddress: indexerOwner,
     });
     if (isNil(account)) {
       this.logger.error(
-        `Wallet address ${indexerOwner.toBase58()} not found in Account table`,
+        `Wallet address ${indexerOwner} not found in Account table`,
       );
       return 'ERROR_NOT_FOUND_ACCOUNT';
     }
@@ -416,12 +410,10 @@ export class BillingProcessor extends AbstractJobProcessor {
     }
 
     const account = await this.accountRepository.findOneBy({
-      walletAddress: user.toBase58(),
+      walletAddress: user,
     });
     if (isNil(account)) {
-      this.logger.error(
-        `Wallet address ${user.toBase58()} not found in Account table`,
-      );
+      this.logger.error(`Wallet address ${user} not found in Account table`);
       return 'ERROR_NOT_FOUND_ACCOUNT';
     }
 
@@ -465,12 +457,10 @@ export class BillingProcessor extends AbstractJobProcessor {
     }
 
     const account = await this.accountRepository.findOneBy({
-      walletAddress: user.toBase58(),
+      walletAddress: user,
     });
     if (isNil(account)) {
-      this.logger.error(
-        `Wallet address ${user.toBase58()} not found in Account table`,
-      );
+      this.logger.error(`Wallet address ${user} not found in Account table`);
       return 'ERROR_NOT_FOUND_ACCOUNT';
     }
 
@@ -485,8 +475,8 @@ export class BillingProcessor extends AbstractJobProcessor {
     const ix = await commitAndStartBillingIx(this.connection, {
       accounts: {
         operator: this.operator.publicKey,
-        user,
-        userVault,
+        user: new PublicKey(user),
+        userVault: new PublicKey(userVault),
       },
       params: {},
     });
@@ -529,15 +519,15 @@ export class BillingProcessor extends AbstractJobProcessor {
     });
 
     const jobData: IStartChargeFeeJob = {
-      user: user.toBase58(),
-      userVault: userVault.toBase58(),
+      user: user,
+      userVault: userVault,
     };
 
     await this.billingSystemQueue.add(
       VertexBillingQueueJob.START_CHARGE_FEE,
       jobData,
       {
-        jobId: `${VertexBillingQueueJob.START_CHARGE_FEE}:user<${user.toBase58()}>`,
+        jobId: `${VertexBillingQueueJob.START_CHARGE_FEE}:user<${user}>`,
       },
     );
 
@@ -649,12 +639,10 @@ export class BillingProcessor extends AbstractJobProcessor {
     }
 
     const account = await this.accountRepository.findOneBy({
-      walletAddress: user.toBase58(),
+      walletAddress: user,
     });
     if (isNil(account)) {
-      this.logger.error(
-        `Wallet address ${user.toBase58()} not found in Account table`,
-      );
+      this.logger.error(`Wallet address ${user} not found in Account table`);
       return 'ERROR_NOT_FOUND_ACCOUNT';
     }
 
@@ -668,14 +656,14 @@ export class BillingProcessor extends AbstractJobProcessor {
     });
 
     const jobData: IStartDelegateUserVaultJob = {
-      user: user.toBase58(),
+      user: user,
       accountId: account.id,
     };
     await this.billingSystemQueue.add(
       VertexBillingQueueJob.START_DELEGATE_USER_VAULT,
       jobData,
       {
-        jobId: `${VertexBillingQueueJob.START_DELEGATE_USER_VAULT}:user<${userVault.toBase58()}>`,
+        jobId: `${VertexBillingQueueJob.START_DELEGATE_USER_VAULT}:user<${userVault}>`,
       },
     );
 
