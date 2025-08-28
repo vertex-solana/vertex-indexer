@@ -38,6 +38,7 @@ import {
   commitAndStartBillingIx,
   delegateUserVaultIx,
   getProgram,
+  IUserVault,
   seeds,
   trackUserActivityIx,
   UserVault,
@@ -312,7 +313,6 @@ export class BillingProcessor extends AbstractJobProcessor {
     return 'FINISHED';
   }
 
-  //TODO: Handle call from Read query and storage indexed data
   @Process(VertexBillingQueueJob.UPDATE_TRACK_USER_ACTIVITY)
   async handleUpdateTrackUserActivity(
     job: Job<UpdateTrackUserActivityJob>,
@@ -334,13 +334,6 @@ export class BillingProcessor extends AbstractJobProcessor {
         'User vault must be delegate to ER first before update user activity.',
       );
       return 'ERROR_NOT_DELEGATE_USER_VAULT';
-    }
-
-    const userVaultDataAtER =
-      await this.programER.account.userVault.fetch(userVault);
-    if (userVaultDataAtER.billingStatus) {
-      this.logger.info('User vault are in billing process.');
-      return 'USER_VAULT_IN_BILLING_PROCESS';
     }
 
     let indexerPubkey: PublicKey | null = null;
@@ -430,7 +423,6 @@ export class BillingProcessor extends AbstractJobProcessor {
     if (indexerId) {
       const indexer = await this.indexerRepository.findOneBy({
         id: Number(indexerId),
-        accountId: account.id,
       });
       if (isNil(indexer)) {
         this.logger.error(`Indexer ${indexerId} not found in Indexer table`);
@@ -516,6 +508,7 @@ export class BillingProcessor extends AbstractJobProcessor {
       DEFAULT_RETRIES,
     );
 
+    this.logger.info(commitSig, `Get commit signature at ER for User ${user}`);
     await this.connection.getTransaction(commitSig, {
       commitment: 'finalized',
     });
@@ -558,9 +551,8 @@ export class BillingProcessor extends AbstractJobProcessor {
     const userVaultDecoded = this.program.coder.accounts.decode(
       'userVault',
       userVaultInfo.data,
-    );
-    const userVaultData = new UserVault(userVaultDecoded);
-    const readDebts = userVaultData.state.readDebts.filter(
+    ) as IUserVault;
+    const readDebts = userVaultDecoded.readDebts.filter(
       (readDebt) => readDebt.indexerId.toNumber() !== DEFAULT_INDEXER_ID,
     );
     const indexerIds = readDebts.map((r) => r.indexerId.toNumber());

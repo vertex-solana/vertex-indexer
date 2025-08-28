@@ -2,7 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 import { Program } from 'anchor-v31';
 import BN from 'bn.js';
 import { VertexProgram } from '../idl/vertex_program';
-import { DEFAULT_INDEXER_ID } from '../common';
+import { BILLING_PENDING, DEFAULT_INDEXER_ID } from '../common';
 
 interface IReadDebt {
   indexerId: BN;
@@ -10,7 +10,7 @@ interface IReadDebt {
   pricePerGbLamports: BN;
 }
 
-interface IUserVault {
+export interface IUserVault {
   owner: PublicKey;
   bump: number;
   storageBytes: BN;
@@ -38,5 +38,9 @@ export class UserVault {
     );
 
     return availableReadDebts.length > 0;
+  }
+
+  isPendingBilling(): boolean {
+    return this.state.billingStatus === BILLING_PENDING;
   }
 }

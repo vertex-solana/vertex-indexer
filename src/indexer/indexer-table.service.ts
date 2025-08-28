@@ -37,6 +37,57 @@ export class IndexerTableService {
     this.logger.setContext(IndexerTableService.name);
   }
 
+  async findIndexersActive(payload: {
+    pageNum: number;
+    pageSize: number;
+  }): Promise<IndexerEntity[]> {
+    const { pageNum, pageSize } = payload;
+
+    return await this.indexerRepository
+      .createQueryBuilder('indexer')
+      .innerJoinAndSelect('indexer.account', 'account')
+      .where('indexer.isActive = :isActive', { isActive: true })
+      .take(pageSize)
+      .skip(pageNum * pageSize)
+      .getMany();
+  }
+
+  async getSchemaSize(indexerId: number): Promise<{
+    schemaName: string;
+    totalSizePretty: string;
+    totalSizeBytes: number;
+  }> {
+    const schemaName = `indexer_${indexerId}`;
+
+    const result = await this.dataSource.query(
+      `
+    SELECT
+      n.nspname AS "schemaName",
+      pg_size_pretty(SUM(pg_total_relation_size(c.oid))) AS "totalSizePretty",
+      SUM(pg_total_relation_size(c.oid)) AS "totalSizeBytes"
+    FROM
+      pg_class c
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE
+      n.nspname = $1
+      AND c.relkind = 'r'
+    GROUP BY
+      n.nspname;
+    `,
+      [schemaName],
+    );
+
+    if (result.length === 0) {
+      return {
+        schemaName,
+        totalSizePretty: '0 bytes',
+        totalSizeBytes: 0,
+      };
+    }
+
+    return result[0];
+  }
+
   async executeQuery(
     { indexerId, query }: ExecuteQueryDto,
     account: AccountEntity,

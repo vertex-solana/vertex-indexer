@@ -338,31 +338,7 @@
         },
         {
           "name": "user_vault",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  117,
-                  115,
-                  101,
-                  114,
-                  95,
-                  118,
-                  97,
-                  117,
-                  108,
-                  116
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "user_vault.owner",
-                "account": "UserVault"
-              }
-            ]
-          }
+          "writable": true
         },
         {
           "name": "system_program",
@@ -1258,6 +1234,16 @@
       "type": {
         "kind": "struct",
         "fields": [
+          {
+            "name": "bytes",
+            "type": "u64"
+          },
+          {
+            "name": "indexer_id",
+            "type": {
+              "option": "u64"
+            }
+          },
           {
             "name": "user",
             "type": "pubkey"

@@ -39,5 +39,6 @@ import { IndexerConnectionManagerService } from './indexer-connection-manager.se
     ExecuteTransformerProcessor,
     IndexerConnectionManagerService,
   ],
+  exports: [IndexerTableService, IndexerService],
 })
 export class IndexerModule {}

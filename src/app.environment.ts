@@ -1,3 +1,4 @@
+import { CronExpression } from '@nestjs/schedule';
 import * as dotenv from 'dotenv';
 
 dotenv.config({ path: '.env' });
@@ -89,3 +90,13 @@ export const MAGIC_BLOCK_ER_RPC_WS =
 // Vertex Billing
 export const OPERATOR_BILLING_SECRET_KEY =
   process.env.OPERATOR_BILLING_SECRET_KEY;
+export const SCHEDULER_TRACKING_STORAGE_INDEXER =
+  process.env.SCHEDULER_TRACKING_STORAGE_INDEXER ||
+  CronExpression.EVERY_DAY_AT_MIDNIGHT;
+export const SCHEDULER_SCAN_PENDING_BILLING =
+  process.env.SCHEDULER_SCAN_PENDING_BILLING ||
+  CronExpression.EVERY_DAY_AT_MIDNIGHT;
+export const SIZE_BATCH_HANDLE_TRACKING_STORAGE =
+  parseInt(process.env.SIZE_BATCH_HANDLE_TRACKING_STORAGE, 10) || 100;
+export const SIZE_BATCH_HANDLE_PENDING_BILLING =
+  parseInt(process.env.SIZE_BATCH_HANDLE_PENDING_BILLING, 10) || 100;

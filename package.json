@@ -42,6 +42,7 @@
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.11",
+    "@nestjs/schedule": "^6.0.0",
     "@nestjs/swagger": "^11.0.7",
     "@nestjs/typeorm": "^11.0.0",
     "@raydium-io/raydium-sdk-v2": "0.1.118-alpha",

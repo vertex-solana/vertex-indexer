@@ -9,11 +9,16 @@ import { BillingSystemQueueConfig } from 'src/common/queue';
 import { BillingSyncTransactionService } from './processor/billing-sync-transaction.service';
 import { BillingEventService } from './processor/billing-event.service';
 import { BillingController } from './billing.controller';
+import { BillingScheduler } from './billing.scheduler';
+import { IndexerModule } from 'src/indexer/indexer.module';
+import { AccountModule } from 'src/account/account.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature(entities),
     BullModule.registerQueue(BillingSystemQueueConfig),
+    IndexerModule,
+    AccountModule,
   ],
   controllers: [BillingController],
   providers: [
@@ -26,6 +31,9 @@ import { BillingController } from './billing.controller';
     BillingProcessor,
     BillingSyncTransactionService,
     BillingEventService,
+
+    // Scheduler
+    BillingScheduler,
   ],
   exports: [BillingService],
 })

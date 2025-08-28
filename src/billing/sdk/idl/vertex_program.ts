@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/vertex_program.json`.
  */
 export type VertexProgram = {
-  address: 'AtanB6GFaMXuM8mBUgSJUMwtKEB7ii35LAUwAQwdEsFf';
+  address: 'programid';
   metadata: {
     name: 'vertexProgram';
     version: '0.1.0';
@@ -269,19 +269,6 @@ export type VertexProgram = {
         {
           name: 'userVault';
           writable: true;
-          pda: {
-            seeds: [
-              {
-                kind: 'const';
-                value: [117, 115, 101, 114, 95, 118, 97, 117, 108, 116];
-              },
-              {
-                kind: 'account';
-                path: 'user_vault.owner';
-                account: 'userVault';
-              },
-            ];
-          };
         },
         {
           name: 'systemProgram';
@@ -950,6 +937,16 @@ export type VertexProgram = {
       type: {
         kind: 'struct';
         fields: [
+          {
+            name: 'bytes';
+            type: 'u64';
+          },
+          {
+            name: 'indexerId';
+            type: {
+              option: 'u64';
+            };
+          },
           {
             name: 'user';
             type: 'pubkey';
