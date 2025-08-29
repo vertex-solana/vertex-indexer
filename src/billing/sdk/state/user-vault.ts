@@ -16,12 +16,12 @@ export interface IUserVault {
   storageBytes: BN;
   storageBytesLastBilled: BN;
   readDebts: IReadDebt[];
-  billingStatus: number;
+  billingStatus: number | null;
   rentLamports: BN;
 }
 
 export class UserVault {
-  state: IUserVault;
+  state?: IUserVault;
   address: PublicKey;
 
   constructor(address: PublicKey) {
@@ -33,14 +33,23 @@ export class UserVault {
   }
 
   isAvailableToReadDataFromAnotherIndex(): boolean {
-    const availableReadDebts = this.state.readDebts.filter(
-      (readDebt) => readDebt.indexerId.toNumber() === DEFAULT_INDEXER_ID,
-    );
+    this.assertLoaded();
 
-    return availableReadDebts.length > 0;
+    const isDefault = (id: BN) => id.eqn(DEFAULT_INDEXER_ID);
+
+    return this.state!.readDebts.some((d) => isDefault(d.indexerId));
   }
 
   isPendingBilling(): boolean {
-    return this.state.billingStatus === BILLING_PENDING;
+    this.assertLoaded();
+
+    return (
+      this.state!.billingStatus != null &&
+      this.state!.billingStatus === BILLING_PENDING
+    );
+  }
+
+  private assertLoaded(): void {
+    if (!this.state) throw new Error('UserVault state not loaded');
   }
 }

@@ -103,7 +103,7 @@ export class BillingProcessor extends AbstractJobProcessor {
 
   @Process(VertexBillingQueueJob.INIT_USER_VAULT)
   async handleInitUserVault(job: Job<IInitUserVaultJob>): Promise<string> {
-    const { owner, signature, userVault, timestamp } = job.data;
+    const { owner, signature, timestamp } = job.data;
 
     const isSyncedTransaction =
       await this.billingService.isSyncedTransaction(signature);
@@ -260,7 +260,7 @@ export class BillingProcessor extends AbstractJobProcessor {
       signature,
       timestamp,
       transactionType: VertexTransactionType.DEPOSIT_TO_VAULT,
-      amount: Number(amount),
+      amount: BigInt(amount),
     });
 
     return 'FINISHED';
@@ -307,7 +307,7 @@ export class BillingProcessor extends AbstractJobProcessor {
       timestamp,
       transactionType: VertexTransactionType.WITHDRAW_INDEXER_FEE,
       indexerId: indexer.id,
-      amount: Number(amount),
+      amount: BigInt(amount),
     });
 
     return 'FINISHED';
@@ -437,7 +437,7 @@ export class BillingProcessor extends AbstractJobProcessor {
       timestamp,
       transactionType: VertexTransactionType.TRACK_USER_ACTIVITY,
       indexerId: indexerId ? Number(indexerId) : null,
-      bytes: Number(bytes),
+      bytes: BigInt(bytes),
     });
 
     return 'FINISHED';
@@ -543,6 +543,10 @@ export class BillingProcessor extends AbstractJobProcessor {
     const userVault = new PublicKey(job.data.userVault);
 
     const userVaultInfo = await this.connection.getAccountInfo(userVault);
+    if (isNil(userVaultInfo)) {
+      this.logger.error(`User ${user} not initialize user vault yet.`);
+      return 'ERROR_NOT_INIT_USER_VAULT';
+    }
     if (!userVaultInfo.owner.equals(this.program.programId)) {
       // Throw error to handle retry the job
       throw new Error('User Vault not finish UnDelegate yet.');
@@ -656,7 +660,7 @@ export class BillingProcessor extends AbstractJobProcessor {
       signature,
       timestamp,
       transactionType: VertexTransactionType.CHARGED_FEE,
-      amount: Number(amount),
+      amount: BigInt(amount),
     });
 
     const jobData: IStartDelegateUserVaultJob = {

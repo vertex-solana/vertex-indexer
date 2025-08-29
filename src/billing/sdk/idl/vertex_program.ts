@@ -1,11 +1,5 @@
-/**
- * Program IDL in camelCase format in order to be used in JS/TS.
- *
- * Note that this is only a type helper and is not the actual IDL. The original
- * IDL can be found at `target/idl/vertex_program.json`.
- */
 export type VertexProgram = {
-  address: 'programid';
+  address: 'AtanB6GFaMXuM8mBUgSJUMwtKEB7ii35LAUwAQwdEsFf';
   metadata: {
     name: 'vertexProgram';
     version: '0.1.0';

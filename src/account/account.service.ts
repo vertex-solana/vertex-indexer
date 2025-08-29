@@ -19,6 +19,7 @@ export class AccountService {
     return await this.accountRepository.find({
       take: pageSize,
       skip: pageNum * pageSize,
+      order: { id: 'ASC' },
     });
   }
 

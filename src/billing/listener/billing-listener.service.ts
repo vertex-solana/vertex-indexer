@@ -6,7 +6,6 @@ import { getProgram } from '../sdk';
 import { Connection } from '@solana/web3.js';
 import {
   MAGIC_BLOCK_ER_RPC_URL,
-  MAGIC_BLOCK_ER_RPC_WS,
   RPC_URL,
   SYNC_TRANSACTION_QUEUE_JOB_OPTIONS,
 } from 'src/app.environment';
@@ -66,35 +65,33 @@ export class BillingListenerService implements OnModuleInit {
     };
 
     this.rpcSocket.onmessage = async (event) => {
-      const eventData = JSON.parse(
-        event.data as any,
-      ) as LogsNotificationRPCResponse;
+      let eventData: LogsNotificationRPCResponse | null = null;
+      try {
+        eventData = JSON.parse(event.data as any);
+      } catch {
+        return;
+      }
 
       if (eventData.method !== 'logsNotification') {
         return;
       }
 
-      await process(
-        eventData.params.result,
-        this.interval,
-        ExecutionLayer.BASE_CHAIN,
-      );
+      await process(eventData.params.result, ExecutionLayer.BASE_CHAIN);
     };
 
     this.rpcSocketER.onmessage = async (event) => {
-      const eventData = JSON.parse(
-        event.data as any,
-      ) as LogsNotificationRPCResponse;
+      let eventData: LogsNotificationRPCResponse | null = null;
+      try {
+        eventData = JSON.parse(event.data as any);
+      } catch {
+        return;
+      }
 
       if (eventData.method !== 'logsNotification') {
         return;
       }
 
-      await process(
-        eventData.params.result,
-        this.interval,
-        ExecutionLayer.EPHEMERAL_ROLLUP,
-      );
+      await process(eventData.params.result, ExecutionLayer.EPHEMERAL_ROLLUP);
     };
 
     // Keep the connection alive
@@ -131,7 +128,6 @@ export class BillingListenerService implements OnModuleInit {
 
   private async processAccountNotification(
     notification: Result,
-    interval: NodeJS.Timeout | null,
     executionLayer: ExecutionLayer,
   ) {
     const signature = notification?.value?.signature;
@@ -158,6 +154,5 @@ export class BillingListenerService implements OnModuleInit {
     this.logger.debug(
       `Added job sync transaction billing program, jobId:${jobId}`,
     );
-    if (interval) clearInterval(interval);
   }
 }

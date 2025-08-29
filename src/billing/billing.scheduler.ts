@@ -75,13 +75,13 @@ export class BillingScheduler {
             `Added job UPDATE_TRACK_USER_ACTIVITY for user <${indexer.account.walletAddress}>, jobId:${jobId}`,
           );
         }
-
-        pageNum++;
-        indexers = await this.indexerTableService.findIndexersActive({
-          pageNum,
-          pageSize: 100,
-        });
       }
+
+      pageNum++;
+      indexers = await this.indexerTableService.findIndexersActive({
+        pageNum,
+        pageSize: 100,
+      });
     }
   }
 

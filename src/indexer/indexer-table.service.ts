@@ -47,6 +47,7 @@ export class IndexerTableService {
       .createQueryBuilder('indexer')
       .innerJoinAndSelect('indexer.account', 'account')
       .where('indexer.isActive = :isActive', { isActive: true })
+      .orderBy('indexer.id', 'ASC')
       .take(pageSize)
       .skip(pageNum * pageSize)
       .getMany();

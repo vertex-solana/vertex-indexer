@@ -34,7 +34,7 @@ export class BillingSyncTransactionService {
   }
 
   async syncTransaction(payload: ISyncTransactionBillingJob): Promise<void> {
-    const { executionLayer, timestamp, signature } = payload;
+    const { executionLayer, signature } = payload;
 
     try {
       const events = await this.getTransactionEvents(signature, executionLayer);

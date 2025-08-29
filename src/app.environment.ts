@@ -84,8 +84,6 @@ export const CREDENTIAL_SECRET_KEY =
 export const RPC_URL = process.env.RPC_URL || 'https://api.devnet.solana.com';
 export const MAGIC_BLOCK_ER_RPC_URL =
   process.env.MAGIC_BLOCK_ER_RPC_URL || 'https://devnet.magicblock.app/';
-export const MAGIC_BLOCK_ER_RPC_WS =
-  process.env.MAGIC_BLOCK_ER_RPC_WS || 'wss://devnet.magicblock.app/';
 
 // Vertex Billing
 export const OPERATOR_BILLING_SECRET_KEY =
