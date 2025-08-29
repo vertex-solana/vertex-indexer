@@ -39,7 +39,7 @@ export class VertexTransactionEntity extends AbstractEntity {
     type: 'bigint',
     nullable: true,
   })
-  amount: BigInt | null;
+  amount: string | null;
 
   @Column({
     name: 'indexer_id',
@@ -53,7 +53,7 @@ export class VertexTransactionEntity extends AbstractEntity {
     type: 'bigint',
     nullable: true,
   })
-  bytes: BigInt | null;
+  bytes: string | null;
 
   @Column({
     name: 'transaction_hash',

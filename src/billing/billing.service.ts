@@ -74,8 +74,8 @@ export class BillingService {
     timestamp: number;
     signature: string;
     transactionType: VertexTransactionType;
-    amount?: BigInt;
-    bytes?: BigInt;
+    amount?: string;
+    bytes?: string;
     indexerId?: number;
   }): Promise<void> {
     const amount = payload.amount ?? null;

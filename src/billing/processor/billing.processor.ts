@@ -260,7 +260,7 @@ export class BillingProcessor extends AbstractJobProcessor {
       signature,
       timestamp,
       transactionType: VertexTransactionType.DEPOSIT_TO_VAULT,
-      amount: BigInt(amount),
+      amount,
     });
 
     return 'FINISHED';
@@ -307,7 +307,7 @@ export class BillingProcessor extends AbstractJobProcessor {
       timestamp,
       transactionType: VertexTransactionType.WITHDRAW_INDEXER_FEE,
       indexerId: indexer.id,
-      amount: BigInt(amount),
+      amount,
     });
 
     return 'FINISHED';
@@ -437,7 +437,7 @@ export class BillingProcessor extends AbstractJobProcessor {
       timestamp,
       transactionType: VertexTransactionType.TRACK_USER_ACTIVITY,
       indexerId: indexerId ? Number(indexerId) : null,
-      bytes: BigInt(bytes),
+      bytes,
     });
 
     return 'FINISHED';
@@ -660,7 +660,7 @@ export class BillingProcessor extends AbstractJobProcessor {
       signature,
       timestamp,
       transactionType: VertexTransactionType.CHARGED_FEE,
-      amount: BigInt(amount),
+      amount,
     });
 
     const jobData: IStartDelegateUserVaultJob = {
