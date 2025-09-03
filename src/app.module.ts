@@ -20,11 +20,14 @@ import { IdlDappModule } from './idl-dapp/idl-dapp.module';
 import { AuthModule } from './auth/auth.module';
 import { AccountModule } from './account/account.module';
 import { RpcModule } from './rpc/rpc.module';
+import { BillingModule } from './billing/billing.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     dbOrmModuleAsync,
     loggerModule,
+    ScheduleModule.forRoot(),
     EventEmitterModule.forRoot(),
     RedisModule.forRootAsync({
       host: REDIS_HOST,
@@ -41,6 +44,7 @@ import { RpcModule } from './rpc/rpc.module';
     AuthModule,
     AccountModule,
     RpcModule,
+    BillingModule,
   ],
   providers: [],
 })

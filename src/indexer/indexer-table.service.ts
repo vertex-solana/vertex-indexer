@@ -1,23 +1,123 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
-import { DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { ResultExecuteQueryResponse } from './dtos/response.dto';
 import { ExecuteQueryDto } from './dtos/request.dto';
 import { getIndexerRole } from 'src/database/entities/indexer-schema-credential.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { AccountEntity, IndexerEntity } from 'src/database/entities';
+import { Program } from 'anchor-v31';
+import { VertexProgram } from 'src/billing/sdk/idl/vertex_program';
+import { getProgram, seeds, UserVault } from 'src/billing/sdk';
+import { Connection, PublicKey } from '@solana/web3.js';
+import { RPC_URL } from 'src/app.environment';
+import { Queue } from 'bull';
+import {
+  InjectBillingSystemQueue,
+  VertexBillingQueueJob,
+} from 'src/common/queue';
+import { UpdateTrackUserActivityJob } from 'src/billing/processor/billing-job.interface';
 
 @Injectable()
 export class IndexerTableService {
+  private readonly program: Program<VertexProgram>;
+
   constructor(
+    @InjectBillingSystemQueue()
+    private readonly billingSystemQueue: Queue,
+    @InjectRepository(AccountEntity)
+    private readonly accountRepository: Repository<AccountEntity>,
+    @InjectRepository(IndexerEntity)
+    private readonly indexerRepository: Repository<IndexerEntity>,
     private readonly dataSource: DataSource,
     private readonly logger: PinoLogger,
   ) {
+    this.program = getProgram(new Connection(RPC_URL));
+
     this.logger.setContext(IndexerTableService.name);
   }
 
-  async executeQuery({
-    indexerId,
-    query,
-  }: ExecuteQueryDto): Promise<ResultExecuteQueryResponse> {
+  async findIndexersActive(payload: {
+    pageNum: number;
+    pageSize: number;
+  }): Promise<IndexerEntity[]> {
+    const { pageNum, pageSize } = payload;
+
+    return await this.indexerRepository
+      .createQueryBuilder('indexer')
+      .innerJoinAndSelect('indexer.account', 'account')
+      .where('indexer.isActive = :isActive', { isActive: true })
+      .orderBy('indexer.id', 'ASC')
+      .take(pageSize)
+      .skip(pageNum * pageSize)
+      .getMany();
+  }
+
+  async getSchemaSize(indexerId: number): Promise<{
+    schemaName: string;
+    totalSizePretty: string;
+    totalSizeBytes: number;
+  }> {
+    const schemaName = `indexer_${indexerId}`;
+
+    const result = await this.dataSource.query(
+      `
+    SELECT
+      n.nspname AS "schemaName",
+      pg_size_pretty(SUM(pg_total_relation_size(c.oid))) AS "totalSizePretty",
+      SUM(pg_total_relation_size(c.oid)) AS "totalSizeBytes"
+    FROM
+      pg_class c
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE
+      n.nspname = $1
+      AND c.relkind = 'r'
+    GROUP BY
+      n.nspname;
+    `,
+      [schemaName],
+    );
+
+    if (result.length === 0) {
+      return {
+        schemaName,
+        totalSizePretty: '0 bytes',
+        totalSizeBytes: 0,
+      };
+    }
+
+    return result[0];
+  }
+
+  async executeQuery(
+    { indexerId, query }: ExecuteQueryDto,
+    account: AccountEntity,
+  ): Promise<ResultExecuteQueryResponse> {
+    const indexer = await this.indexerRepository.findOne({
+      where: { id: indexerId },
+    });
+    if (!indexer) {
+      throw new NotFoundException(`Indexer not found`);
+    }
+
+    const neededRecordDataQuery = indexer.accountId !== account.id;
+    if (neededRecordDataQuery) {
+      const userVaultPubkey = PublicKey.findProgramAddressSync(
+        seeds.userVault(new PublicKey(account.walletAddress)),
+        this.program.programId,
+      )[0];
+
+      const userVault = new UserVault(userVaultPubkey);
+      await userVault.load(this.program);
+      console.log('userVault', userVault.state);
+
+      if (!userVault.isAvailableToReadDataFromAnotherIndex()) {
+        throw new NotFoundException(
+          `User not available to read data from another index`,
+        );
+      }
+    }
+
     const readRole = getIndexerRole(indexerId, 'reader');
     await this.dataSource.query(`SET ROLE ${readRole}`);
 
@@ -41,6 +141,27 @@ export class IndexerTableService {
               return newRow;
             });
 
+      if (neededRecordDataQuery) {
+        const bytes = this.measureDataQueryToBytes(rows);
+
+        const jobData: UpdateTrackUserActivityJob = {
+          userWallet: account.walletAddress,
+          indexerId,
+          bytes,
+        };
+        const jobId = `${VertexBillingQueueJob.UPDATE_TRACK_USER_ACTIVITY}:user<${account.walletAddress}>`;
+        await this.billingSystemQueue.add(
+          VertexBillingQueueJob.UPDATE_TRACK_USER_ACTIVITY,
+          jobData,
+          {
+            jobId,
+          },
+        );
+        this.logger.debug(
+          `Added job UPDATE_TRACK_USER_ACTIVITY for user <${account.walletAddress}>, jobId:${jobId}`,
+        );
+      }
+
       return {
         query,
         schema,
@@ -49,5 +170,9 @@ export class IndexerTableService {
     } finally {
       await this.dataSource.query(`RESET ROLE`);
     }
+  }
+
+  private measureDataQueryToBytes(rows: any): number {
+    return Buffer.byteLength(JSON.stringify(rows), 'utf8');
   }
 }

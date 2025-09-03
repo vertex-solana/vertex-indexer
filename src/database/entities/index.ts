@@ -5,3 +5,5 @@ export * from './indexer-trigger.entity';
 export * from './transformer-pda.entity';
 export * from './indexer-table-metadata.entity';
 export * from './query-log.entity';
+export * from './indexer-schema-credential.entity';
+export * from './vertex-transaction.entity';

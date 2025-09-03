@@ -1,4 +1,7 @@
 echo "Linting....👻"
 pnpm lint-staged
 
+echo "Typecheking....👻"
+pnpm typecheck
+
 exit 0

@@ -1,4 +1,6 @@
-import { PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
+import bs58 from 'bs58';
+import { OPERATOR_BILLING_SECRET_KEY } from 'src/app.environment';
 
 export const TypeColumn = [
   'varbinary',
@@ -26,4 +28,11 @@ export const DEFAULT_TX_HASHES = [
 ];
 export const DEFAULT_PUBLICK_KEY = new PublicKey(
   '11111111111111111111111111111111',
+);
+
+// ER
+export const TIME_WAIT_RETRY_GET_COMMIT_SIG_AT_ER = 1000;
+
+export const OPERATOR_BILLING_KEYPAIR = Keypair.fromSecretKey(
+  bs58.decode(OPERATOR_BILLING_SECRET_KEY),
 );

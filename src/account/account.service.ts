@@ -11,6 +11,18 @@ export class AccountService {
     private readonly accountRepository: Repository<AccountEntity>,
   ) {}
 
+  async findAccounts(payload: {
+    pageNum: number;
+    pageSize: number;
+  }): Promise<AccountEntity[]> {
+    const { pageNum, pageSize } = payload;
+    return await this.accountRepository.find({
+      take: pageSize,
+      skip: pageNum * pageSize,
+      order: { id: 'ASC' },
+    });
+  }
+
   async findOrCreateAccountByEmail(email: string): Promise<AccountEntity> {
     const account = await this.accountRepository
       .createQueryBuilder('account')
