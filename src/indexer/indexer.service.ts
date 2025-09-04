@@ -69,7 +69,7 @@ export class IndexerService {
   async createIndexerSpace(
     input: CreateIndexerSpaceDto,
     account: AccountEntity,
-  ): Promise<void> {
+  ): Promise<IndexerEntity> {
     const { idlId, name, cluster, description, programId } = input;
 
     let idl: IdlDappEntity | null = null;
@@ -143,6 +143,11 @@ export class IndexerService {
       passwordEncrypted: encrypt(ownerPassword, CREDENTIAL_SECRET_KEY),
       indexerId: indexer.id,
     });
+
+    return {
+      ...indexer,
+      account,
+    };
   }
 
   async getIndexers(

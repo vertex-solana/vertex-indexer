@@ -56,8 +56,13 @@ export class IndexerController {
   async createIndexerSpace(
     @Body() input: CreateIndexerSpaceDto,
     @Req() req: RequestWithUser,
-  ): Promise<void> {
-    return await this.indexerService.createIndexerSpace(input, req.user);
+  ): Promise<IndexerResponse> {
+    const indexer = await this.indexerService.createIndexerSpace(
+      input,
+      req.user,
+    );
+
+    return new IndexerResponse(indexer);
   }
 
   @ApiPaginatedResponse(IndexerResponse)
