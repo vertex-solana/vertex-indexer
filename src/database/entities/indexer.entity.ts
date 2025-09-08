@@ -69,6 +69,15 @@ export class IndexerEntity extends AbstractEntity {
   isActive: boolean;
 
   @Column({
+    name: 'schema_path',
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+    default: 'public',
+  })
+  schemaPath: string;
+
+  @Column({
     name: 'idl_id',
     type: 'bigint',
     nullable: true,

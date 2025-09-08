@@ -5,6 +5,7 @@ import { IndexerService } from './indexer.service';
 import { IndexerController } from './indexer.controller';
 import { BullModule } from '@nestjs/bull';
 import {
+  BillingSystemQueueConfig,
   ExecuteTransformerQueueConfig,
   IndexerSystemQueueConfig,
   PdaSystemQueueConfig,
@@ -15,6 +16,7 @@ import { IndexerTableService } from './indexer-table.service';
 import { RpcModule } from 'src/rpc/rpc.module';
 import { AccountModule } from 'src/account/account.module';
 import { ExecuteTransformerProcessor } from './processor/execute-transformer.processor';
+import { IndexerConnectionManagerService } from './indexer-connection-manager.service';
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { ExecuteTransformerProcessor } from './processor/execute-transformer.pro
       PdaSystemQueueConfig,
       IndexerSystemQueueConfig,
       ExecuteTransformerQueueConfig,
+      BillingSystemQueueConfig,
     ),
     RpcModule,
     AccountModule,
@@ -34,6 +37,8 @@ import { ExecuteTransformerProcessor } from './processor/execute-transformer.pro
     PdaProcessor,
     IndexerProcessor,
     ExecuteTransformerProcessor,
+    IndexerConnectionManagerService,
   ],
+  exports: [IndexerTableService, IndexerService],
 })
 export class IndexerModule {}

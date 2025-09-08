@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { isNil } from 'lodash';
 import { AccountEntity } from 'src/database/entities';
 import { Repository } from 'typeorm';
-import { UpdateUserNameDto } from './dtos/request.dto';
 
 @Injectable()
 export class AccountService {
@@ -11,6 +10,18 @@ export class AccountService {
     @InjectRepository(AccountEntity)
     private readonly accountRepository: Repository<AccountEntity>,
   ) {}
+
+  async findAccounts(payload: {
+    pageNum: number;
+    pageSize: number;
+  }): Promise<AccountEntity[]> {
+    const { pageNum, pageSize } = payload;
+    return await this.accountRepository.find({
+      take: pageSize,
+      skip: pageNum * pageSize,
+      order: { id: 'ASC' },
+    });
+  }
 
   async findOrCreateAccountByEmail(email: string): Promise<AccountEntity> {
     const account = await this.accountRepository
@@ -24,8 +35,6 @@ export class AccountService {
       this.accountRepository.create({
         email: email,
         walletAddress: '',
-        userName: email,
-        isUpdatedUserName: false,
       }),
     );
     return newAccount;
@@ -41,29 +50,6 @@ export class AccountService {
     }
 
     return account;
-  }
-
-  async updateUserNameDto(input: UpdateUserNameDto): Promise<AccountEntity> {
-    const account = await this.accountRepository.findOneBy({
-      id: input.accountId,
-    });
-
-    if (account.isUpdatedUserName) {
-      throw new BadRequestException(`User name has already been updated`);
-    }
-
-    const isExistUserName = await this.accountRepository
-      .createQueryBuilder('account')
-      .where('account.userName = :userName', { userName: input.userName })
-      .andWhere('account.id != :id', { id: input.accountId })
-      .getOne();
-    if (!isNil(isExistUserName)) {
-      throw new BadRequestException(`User name already exists`);
-    }
-    account.userName = input.userName;
-    account.isUpdatedUserName = true;
-    const updatedAccount = await this.accountRepository.save(account);
-    return updatedAccount;
   }
 
   async findOrCreateAccountByWalletAddress(
@@ -82,8 +68,6 @@ export class AccountService {
       this.accountRepository.create({
         walletAddress: walletAddress,
         email: null,
-        userName: null,
-        isUpdatedUserName: false,
       }),
     );
 

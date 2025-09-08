@@ -42,6 +42,10 @@ export const sendTransactionWithRetry = async (
     params.needSimulate = true;
   }
 
+  if (isNil(params.isAddComputeUnitIx)) {
+    params.isAddComputeUnitIx = true;
+  }
+
   const {
     connection,
     instructions,
@@ -63,11 +67,13 @@ export const sendTransactionWithRetry = async (
   transaction.recentBlockhash = blockhashInfo.value.blockhash;
   transaction.lastValidBlockHeight = lastValidBlockHeight;
 
-  transaction.add(
-    ComputeBudgetProgram.setComputeUnitPrice({
-      microLamports: PRIORITY_FEE_MICRO_LAMPORT,
-    }),
-  );
+  if (params.isAddComputeUnitIx) {
+    transaction.add(
+      ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: PRIORITY_FEE_MICRO_LAMPORT,
+      }),
+    );
+  }
 
   await wallet.signTransaction(transaction);
 
@@ -124,16 +130,10 @@ export const sendVersionTransactionWithRetry = async (
   } = params;
   const transaction = new Transaction();
 
-  transaction.add(
-    ComputeBudgetProgram.setComputeUnitPrice({
-      microLamports: PRIORITY_FEE_MICRO_LAMPORT,
-    }),
-  );
-
-  if (params.computeUnitLimit) {
+  if (params.isAddComputeUnitIx) {
     transaction.add(
-      ComputeBudgetProgram.setComputeUnitLimit({
-        units: params.computeUnitLimit,
+      ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: PRIORITY_FEE_MICRO_LAMPORT,
       }),
     );
   }

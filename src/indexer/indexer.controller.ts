@@ -37,7 +37,6 @@ import {
   TransformerResponse,
 } from './dtos/response.dto';
 import { IndexerTableService } from './indexer-table.service';
-import { IndexerGuard } from 'src/common/guards/indexer.guard';
 import {
   ApiPaginatedResponse,
   PagingResponse,
@@ -46,7 +45,7 @@ import {
 @ApiTags('Indexer')
 @ApiBearerAuth()
 @Controller('indexers')
-@UseGuards(AccessTokenGuard, IndexerGuard)
+@UseGuards(AccessTokenGuard)
 export class IndexerController {
   constructor(
     private readonly indexerService: IndexerService,
@@ -57,8 +56,13 @@ export class IndexerController {
   async createIndexerSpace(
     @Body() input: CreateIndexerSpaceDto,
     @Req() req: RequestWithUser,
-  ): Promise<void> {
-    return await this.indexerService.createIndexerSpace(input, req.user);
+  ): Promise<IndexerResponse> {
+    const indexer = await this.indexerService.createIndexerSpace(
+      input,
+      req.user,
+    );
+
+    return new IndexerResponse(indexer);
   }
 
   @ApiPaginatedResponse(IndexerResponse)
@@ -187,7 +191,7 @@ export class IndexerController {
     @Body() input: ExecuteQueryDto,
     @Req() req: RequestWithUser,
   ): Promise<ResultExecuteQueryResponse> {
-    return await this.indexerTableService.executeQuery(input.query);
+    return await this.indexerTableService.executeQuery(input, req.user);
   }
 
   @ApiOperation({
