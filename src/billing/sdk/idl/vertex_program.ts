@@ -1,5 +1,5 @@
 export type VertexProgram = {
-  address: 'AtanB6GFaMXuM8mBUgSJUMwtKEB7ii35LAUwAQwdEsFf';
+  address: 'FMdFJm8J5qbMc2XNQkWvqaJYE5ABLqgiLK4nk2Lz4Nb3';
   metadata: {
     name: 'vertexProgram';
     version: '0.1.0';
